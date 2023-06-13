@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Editing{% endblock %}
+{% block content %}
+{% load user_filters %}
+
+    <div class="row justify-content-center">
+      <div class="col-md-8 p-5">
+        <div class="card">
+          <div class="card-header">Editing</div>
+          <div class="card-body">
+
+            <form method="post" action="{% url 'post_edit' profile.username post.id %}" enctype="multipart/form-data">
+              {% csrf_token %}
+
+                <div class="form-group row">
+                    <label for="{{ form.image.id_for_label }}" class="col-md-4 col-form-label text-md-right">Image</label>
+                    <div class="col-md-6">
+                        {{ form.image|addclass:"form-control" }}
+                    </div>
+                </div>
+
+              <div class="form-group row">
+                  <label for="{{ form.group.id_for_label }}" class="col-md-4 col-form-label text-md-right">Group</label>
+                  <div class="col-md-6">
+                      {{ form.group|addclass:"form-control" }}
+                  </div>
+              </div>
+
+              <div class="form-group row">
+                  <label for="{{ form.text.id_for_label }}" class="col-md-4 col-form-label text-md-right">Text</label>
+                  <div class="col-md-6">
+                      {{ form.text|addclass:"form-control" }}
+                  </div>
+              </div>
+
+              <div class="col-md-6 offset-md-4">
+                  <button type="submit" class="btn btn-primary">
+                    Save
+                  </button>
+              </div>
+            </form>
+          </div> <!-- card body -->
+        </div> <!-- card -->
+      </div> <!-- col -->
+    </div> <!-- row -->
+
+{% endblock %}

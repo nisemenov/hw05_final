@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %} Посты авторов {% endblock %}
+
+{% load cache %}
+{% cache 20 index_page %}
+{% block content %}
+<div class="container">
+
+    {% include "menu.html" with follow=True %}
+
+       <h1>Посты авторов для вас</h1>
+
+        {% if page %}
+            {% for post in page %}
+                {% include "post_item.html" with post=post %}
+            {% endfor %}
+        {% else %}
+            <h3>К сожалению, вы пока ни на кого не подписались. Скорее сделайте это!</h3>
+        {% endif %}
+
+    {% if page.has_other_pages %}
+        {% include "paginator.html" with items=page paginator=paginator %}
+    {% endif %}
+
+</div>
+{% endblock %}
+{% endcache %}

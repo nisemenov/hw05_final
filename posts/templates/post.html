@@ -4,39 +4,16 @@
 
 <main role="main" class="container">
     <div class="row">
-            <div class="col-md-3 mb-3 mt-1">
-                    <div class="card">
-                            <div class="card-body">
-                                    <div class="h2">
-                                        {{ profile.get_full_name }}
-                                    </div>
-                                    <div class="h3 text-muted">
-                                        {{ profile.username }}
-                                    </div>
-                            </div>
-                            <ul class="list-group list-group-flush">
-                                    <li class="list-group-item">
-                                            <div class="h6 text-muted">
-                                            Followers: XXX <br/>
-                                            Following: XXX
-                                            </div>
-                                    </li>
-                                    <li class="list-group-item">
-                                            <div class="h6 text-muted">
-                                                Posts: {{ profile.posts.count }}
-                                            </div>
-                                    </li>
-                            </ul>
-                    </div>
-            </div>
 
-            <div class="col-md-9">
+        {% include "profile_info.html" %}
 
-                {% include "post_item.html" with post=post %}
+        <div class="col-md-9">
 
-                {% include 'comments.html' with items=comments form=form %}
+            {% include "post_item.html" with post=post %}
 
-            </div>
+            {% include 'comments.html' with items=comments form=form %}
+
+        </div>
     </div>
 </main>
 {% endblock %}

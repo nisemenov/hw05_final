@@ -1,6 +1,6 @@
 from django.urls import reverse
 from django.test import TestCase, Client
-from posts.models import Post, User, Group
+from posts.models import Post, User, Group, Follow
 
 
 class ScriptTest(TestCase):
@@ -100,3 +100,57 @@ class CacheTest(TestCase):
         response = self.client.get(reverse('index'))
         Post.objects.create(author=self.user, text='cache')
         self.assertNotContains(response, 'cache')
+
+
+class FollowTest(TestCase):
+    def setUp(self) -> None:
+        self.client = Client()
+        self.not_client = Client()
+        self.user = User.objects.create_user(username='leonard',
+                                             password='a12345A')
+        self.user_2 = User.objects.create_user(username='cohen',
+                                               password='a12345A')
+        self.client.force_login(self.user)
+
+    def testFollowUnfollow(self):
+        self.assertEqual(self.user.follower.count(), 0)
+        self.client.get(reverse('profile_follow',
+                                kwargs={'username': self.user_2.username}))
+        self.assertEqual(self.user.follower.count(), 1)
+        self.client.get(reverse('profile_unfollow',
+                                kwargs={'username': self.user_2.username}))
+        self.assertEqual(self.user.follower.count(), 0)
+
+    def testPostForFollower(self):
+        Post.objects.create(author=self.user_2, text='cache')
+        self.client.get(reverse('profile_follow',
+                                kwargs={'username': self.user_2.username}))
+        response = self.client.get(reverse('follow_index'))
+        self.assertEqual(len(response.context['page'].object_list), 1)
+
+    def testPostForFollowing(self):
+        Post.objects.create(author=self.user, text='cache')
+        self.client.get(reverse('profile_follow',
+                                kwargs={'username': self.user_2.username}))
+        response = self.client.get(reverse('follow_index'))
+        self.assertEqual(len(response.context['page'].object_list), 0)
+
+    def testPostComment(self):
+        Post.objects.create(author=self.user, text='cache')
+        self.not_client.post(reverse('add_comment',
+                                     kwargs={'username': 'leonard',
+                                             'post_id': 1}), {'text': 'test'})
+        response = self.not_client.get(reverse('post',
+                                               kwargs={'username': 'leonard',
+                                                       'post_id': 1}))
+        self.assertNotContains(response, 'test')
+
+    def testPostCommentLogin(self):
+        Post.objects.create(author=self.user, text='cache')
+        self.client.post(reverse('add_comment',
+                                 kwargs={'username': 'leonard',
+                                         'post_id': 1}), {'text': 'test'})
+        response = self.client.get(reverse('post',
+                                           kwargs={'username': 'leonard',
+                                                   'post_id': 1}))
+        self.assertContains(response, 'test')

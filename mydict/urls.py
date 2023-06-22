@@ -7,11 +7,11 @@ from django.conf.urls import handler404, handler500
 
 
 urlpatterns = [
-    path('', include('posts.urls')),
     path('admin/', admin.site.urls),
     path('about/', include('django.contrib.flatpages.urls')),
     path('auth/', include('users.urls')),
     path('auth/', include('django.contrib.auth.urls')), 
+    path('', include('posts.urls')),
     path('__debug__/', include('debug_toolbar.urls')),
 ]
 

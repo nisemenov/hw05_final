@@ -15,7 +15,7 @@
 
 ***- Клонируйте репозиторий и перейдите в него через командной строк:***
 ```
->>> git clone git@github.com:nisemenov/hw05_final.git
+>>> git clone https://github.com/nisemenov/hw05_final.git
 >>> cd hw05_final
 ```
 

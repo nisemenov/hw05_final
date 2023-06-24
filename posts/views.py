@@ -1,6 +1,12 @@
+from django.contrib.auth import get_user_model
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.views.generic import (
+    ListView,
+    DetailView,
+    CreateView,
+)
 
 from .models import Post, Group, User, Comment, Follow
 from .forms import PostForm, CommentForm
@@ -8,13 +14,10 @@ from .forms import PostForm, CommentForm
 import datetime as dt
 
 
-def index(request):
-    post_list = Post.objects.all()
-    paginator = Paginator(post_list, 10)
-    page_number = request.GET.get('page')
-    page = paginator.get_page(page_number)
-    return render(request, 'index.html',
-                  {'page': page, 'paginator': paginator})
+class PostListView(ListView):
+    model = Post
+    template_name = 'index.html'
+    paginate_by = 10
 
 
 def group_posts(request, slug):
@@ -27,6 +30,15 @@ def group_posts(request, slug):
                   {'group': group, 'page': page, 'paginator': paginator})
 
 
+class GroupDetailView(DetailView):
+    model = Group
+    template_name = 'group.html'
+
+    def get_context_data(self, **kwargs):
+        
+        return super().get_context_data(**kwargs)
+
+
 @login_required()
 def new_post(request):
     form = PostForm(request.POST or None, files=request.FILES or None)
@@ -36,6 +48,18 @@ def new_post(request):
         post.save()
         return redirect('index')
     return render(request, 'new_post.html', {'form': form})
+
+
+# class PostCreateView(CreateView):
+#     model = Post
+#     form_class = PostForm
+#     template_name = 'new_post.html'
+#
+#     def form_valid(self, form):
+#         post = form.save(commit=False)
+#         post.author = self.request.user
+#         post.save()
+#         return super().form_valid(form)
 
 
 def profile(request, username):
@@ -106,8 +130,8 @@ def post_edit(request, username, post_id):
 
 @login_required
 def follow_index(request):
-    authors_list = request.user.follower.all().values('author')
-    post_list = Post.objects.filter(author__in=authors_list)
+    # authors_list = request.user.follower.all().values('author')
+    post_list = Post.objects.filter(author__following__user=request.user)
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)

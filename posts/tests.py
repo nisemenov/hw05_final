@@ -1,5 +1,6 @@
+import tempfile
 from django.urls import reverse
-from django.test import TestCase, Client
+from django.test import TestCase, Client, override_settings
 from posts.models import Post, User, Group, Follow
 
 
@@ -50,12 +51,14 @@ class TemplatesTest(TestCase):
                                              password='a12345A')
         self.client.force_login(self.user)
         self.group = Group.objects.create(title='test', slug='test')
-        with open('./media/posts/shot.jpeg',
-                  'rb') as img:
-            self.client.post('/new/',
-                             {'text': 'post with image',
-                              'image': img,
-                              'group': self.group.id})
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with override_settings(MEDIA_ROOT=temp_dir):
+                with open('./media/posts/shot.jpeg',
+                          'rb') as img:
+                    self.client.post('/new/',
+                                     {'text': 'post with image',
+                                      'image': img,
+                                      'group': self.group.id})
 
     def test404(self):
         response = self.client.get('/404/')

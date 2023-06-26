@@ -7,6 +7,10 @@
     {% endthumbnail %}
     <!-- Отображение текста поста -->
     <div class="card-body">
+        <h2>
+            {{ post.title }}
+        </h2>
+
         <p class="card-text">
             <!-- Ссылка на автора через @ -->
             <a name="post_{{ post.id }}" href="{% url 'profile' post.author.username %}">

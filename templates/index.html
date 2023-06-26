@@ -10,6 +10,14 @@
 
        <h1>Последние обновления на сайте</h1>
 
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
         {% for post in object_list %}
             {% include "post_item.html" with post=post %}
         {% endfor %}

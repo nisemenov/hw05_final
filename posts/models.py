@@ -5,15 +5,18 @@ User = get_user_model()
 
 
 class Post(models.Model):
-    text = models.TextField('текст')
-    pub_date = models.DateTimeField('дата публикации', auto_now_add=True)
+    title = models.CharField(verbose_name='Title', max_length=200,
+                             blank=True, null=True)
+    text = models.TextField(verbose_name='Text')
+    pub_date = models.DateTimeField(verbose_name='Publication date',
+                                    auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE,
                                related_name='posts',
-                               verbose_name='автор')
+                               verbose_name='Author')
     group = models.ForeignKey('Group', on_delete=models.CASCADE,
                               blank=True, null=True,
                               related_name='posts',
-                              verbose_name='группа')
+                              verbose_name='Group')
     image = models.ImageField(upload_to='posts/', blank=True, null=True)
 
     class Meta:
@@ -24,9 +27,9 @@ class Post(models.Model):
 
 
 class Group(models.Model):
-    title = models.CharField('заголовок', max_length=200)
+    title = models.CharField(verbose_name='Title', max_length=200)
     slug = models.SlugField(unique=True)
-    description = models.TextField('описание')
+    description = models.TextField(verbose_name='Description')
 
     def __str__(self):
         return self.title

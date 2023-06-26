@@ -1,8 +1,13 @@
+{% load admin_urls %}
 <nav class="navbar navbar-light" style="background-color: #d9ead3;">
     <a class="navbar-brand" href="/"><span style="color:red">My</span>Dict</a>
     <nav class="my-2 my-md-0 mr-md-3">
         {% if user.is_authenticated %}
-        Пользователь: {{ user.username }}.
+            {% if user.username == 'admin_1' %}
+                <a class="p-2 text-dark" href="{% url 'admin:index' %}">{{ user.username }}.</a> |
+            {% else %}
+                User: {{ user.username }}.
+            {% endif %}
         <a class="p-2 text-dark" href="{% url 'profile' user.username %}">Your posts</a> |
         <a class="p-2 text-dark" href="{% url 'new_post' %}">New post</a> |
         <a class="p-2 text-dark" href="{% url 'password_change' %}">Change password</a> |

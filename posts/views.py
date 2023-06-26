@@ -1,3 +1,6 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
+from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
@@ -30,36 +33,32 @@ def group_posts(request, slug):
                   {'group': group, 'page': page, 'paginator': paginator})
 
 
-class GroupDetailView(DetailView):
-    model = Group
-    template_name = 'group.html'
+class PostCreateView(LoginRequiredMixin, CreateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'new_post.html'
 
-    def get_context_data(self, **kwargs):
-        
-        return super().get_context_data(**kwargs)
-
-
-@login_required()
-def new_post(request):
-    form = PostForm(request.POST or None, files=request.FILES or None)
-    if form.is_valid():
+    def form_valid(self, form):
         post = form.save(commit=False)
-        post.author = request.user
+        post.author = self.request.user
         post.save()
-        return redirect('index')
-    return render(request, 'new_post.html', {'form': form})
+        messages.add_message(
+            self.request, messages.SUCCESS, f'Post "{post.title}" was added',
+            extra_tags='success'
+        )
+        return super().form_valid(form)
 
+    def get_success_url(self):
+        return reverse('index')
 
-# class PostCreateView(CreateView):
-#     model = Post
-#     form_class = PostForm
-#     template_name = 'new_post.html'
-#
-#     def form_valid(self, form):
-#         post = form.save(commit=False)
-#         post.author = self.request.user
-#         post.save()
-#         return super().form_valid(form)
+    def form_invalid(self, form):
+        messages.add_message(
+            self.request,
+            messages.ERROR,
+            'Error occurred while creating a post',
+            extra_tags='error'
+        )
+        return super().form_invalid(form)
 
 
 def profile(request, username):
@@ -120,8 +119,12 @@ def post_edit(request, username, post_id):
     form = PostForm(request.POST or None, files=request.FILES or None,
                     instance=post)
     if form.is_valid():
-        post.pub_date = dt.datetime.now() + dt.timedelta(hours=3)
+        post.pub_date = dt.datetime.now()
         post.save()
+        messages.add_message(
+            request, messages.SUCCESS, f'Post "{post.title}" was changed!',
+            extra_tags='success'
+        )
         return redirect('post', username, post_id)
     return render(request, 'post_edit.html', {'form': form,
                                               'profile': profile,

@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 import posts.apps
 
@@ -175,3 +179,30 @@ CACHES = {
 CSRF_TRUSTED_ORIGINS = [
     'https://7b30-65-21-251-12.ngrok-free.app',
 ]
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} [{asctime}]: {module} - ({message})",
+            "style": "{",
+        },
+    },
+
+    "handlers": {
+        "telegram": {
+            'class': 'log.handlers.TelegramBotHandler',
+            'formatter': "verbose",
+            'token': os.getenv('TOKEN'),
+            'chat_id': os.getenv('ID'),
+        },
+    },
+
+    "loggers": {
+        "django.server": {
+                "handlers": ["telegram"],
+                "level": "INFO",
+            }
+    }
+}

@@ -13,8 +13,8 @@ def index(request):
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
-    return render(request, 'index.html',
-                  {'page': page, 'paginator': paginator})
+    context = {'page': page, 'paginator': paginator}
+    return render(request, 'index.html', context)
 
 
 def group_posts(request, slug):
@@ -27,7 +27,7 @@ def group_posts(request, slug):
                   {'group': group, 'page': page, 'paginator': paginator})
 
 
-@login_required()
+@login_required
 def new_post(request):
     form = PostForm(request.POST or None, files=request.FILES or None)
     if form.is_valid():
@@ -64,7 +64,7 @@ def post_view(request, username, post_id):
                     request.user.follower.all().values_list('author')]
         if profile.pk in authors_list:
             following = True
-    post = profile.posts.get(id=post_id)
+    post = get_object_or_404(profile.posts, id=post_id)
     comments = Comment.objects.filter(post=post_id)
     form = CommentForm()
     return render(request, 'post.html', {'profile': profile,
@@ -74,7 +74,7 @@ def post_view(request, username, post_id):
                                          'following': following})
 
 
-@login_required()
+@login_required
 def add_comment(request, username, post_id):
     post = get_object_or_404(Post, pk=post_id)
     form = CommentForm(request.POST or None)
@@ -87,7 +87,7 @@ def add_comment(request, username, post_id):
     return redirect('post', username=username, post_id=post_id)
 
 
-@ login_required()
+@ login_required
 def post_edit(request, username, post_id):
     profile = get_object_or_404(User, username=username)
     post = profile.posts.get(id=post_id)
@@ -118,8 +118,9 @@ def follow_index(request):
 @login_required
 def profile_follow(request, username):
     author = get_object_or_404(User, username=username)
-    authors_list = [i[0] for i in
-                    request.user.follower.all().values_list('author')]
+    authors_list = [
+        i[0] for i in request.user.follower.all().values_list('author')
+    ]
     if request.user != author and author.pk not in authors_list:
         Follow.objects.create(user=request.user, author=author)
         return redirect('follow_index')

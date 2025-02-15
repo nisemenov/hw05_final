@@ -1,0 +1,23 @@
+[project]
+name = "hw05-final"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "asgiref",
+    "django",
+    "django-debug-toolbar",
+    "django-extensions",
+    "iniconfig",
+    "packaging",
+    "pillow",
+    "pluggy",
+    "pydot",
+    "pyparsing",
+    "pytest",
+    "pytest-django==4.5.2",
+    "pytz",
+    "sorl-thumbnail",
+    "sqlparse",
+]
